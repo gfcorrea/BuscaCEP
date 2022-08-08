@@ -49,8 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
                             binding.lblCidade.setText("Cidade: " + cep.getLocalidade());
                             binding.lblUF.setText("UF: " + cep.getUf());
+                            binding.lblLogradouro.setText("Logradouro: " + cep.getLogradouro());
                             binding.lblBairro.setText("Bairro: " + cep.getBairro());
                             binding.lblIBGE.setText("Nº IBGE: " + cep.getIbge());
+
                         }
                     }
 
