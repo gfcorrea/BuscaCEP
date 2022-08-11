@@ -37,57 +37,31 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        //Iniciando o ViewModel.
         CepViewModel cepViewModel = new ViewModelProvider(this).get(CepViewModel.class);
 
-
-        final Observer<String> logradouroObserver = new Observer<String>() {
+        //Criando o observer para atualizar a tela quando a thread terminar.
+        final Observer<CepReturnModel> cepObserver = new Observer<CepReturnModel>() {
             @Override
-            public void onChanged(String s) {
-                binding.lblLogradouro.setText("Logradouro: " + s);
+            public void onChanged(CepReturnModel cepReturnModel) {
+                binding.lblLogradouro.setText("Logradouro: " + cepReturnModel.getLogradouro());
+                binding.lblCidade.setText("Cidade: " + cepReturnModel.getLocalidade());
+                binding.lblUF.setText("UF: " + cepReturnModel.getUf());
+                binding.lblBairro.setText("Bairro: " + cepReturnModel.getBairro());
+                binding.lblIBGE.setText("Nº IBGE: " + cepReturnModel.getIbge());
             }
         };
+        //Setando o observer no atributo do viewmodel.
+        cepViewModel.getCep().observe(this, cepObserver);
 
-        final Observer<String> cidadeObserver = new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                binding.lblCidade.setText("Cidade: " + s);
-            }
-        };
-
-        final Observer<String> ufObserver = new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                binding.lblUF.setText("UF: " + s);
-            }
-        };
-
-        final Observer<String> bairroObserver = new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                binding.lblBairro.setText("Bairro: " + s);
-            }
-        };
-
-        final Observer<String> ibgeObserver = new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                binding.lblIBGE.setText("Nº IBGE: " + s);
-            }
-        };
-
-        cepViewModel.getLogradouro().observe(this, logradouroObserver);
-        cepViewModel.getLocalidade().observe(this, cidadeObserver);
-        cepViewModel.getBairro().observe(this, bairroObserver);
-        cepViewModel.getNibge().observe(this, ibgeObserver);
-        cepViewModel.getUf().observe(this, ufObserver);
-
-
+        //Click do botão.
         binding.btnPesquisar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                //Inicia a Thread
                 executor.execute(() -> {
 
+                    //Constrói o retrofit
                     Retrofit retrofit = new Retrofit.Builder()
                             .baseUrl("https://viacep.com.br/")
                             .addConverterFactory(GsonConverterFactory.create())
@@ -97,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Call<CepReturnModel> call = apiService.getCepInformation(binding.txtCEP.getText().toString());
 
+                    //Executa a chamada
                     call.enqueue(new Callback<CepReturnModel>() {
                         @Override
                         public void onResponse(Call<CepReturnModel> call, Response<CepReturnModel> response) {
@@ -104,11 +79,8 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "ERROR onResponde: " + response.code(), Toast.LENGTH_LONG).show();
                             } else {
                                 CepReturnModel cep = response.body();
-                                cepViewModel.getLocalidade().setValue(cep.getLocalidade());
-                                cepViewModel.getBairro().setValue(cep.getBairro());
-                                cepViewModel.getNibge().setValue(cep.getIbge());
-                                cepViewModel.getLogradouro().setValue(cep.getLogradouro());
-                                cepViewModel.getUf().setValue(cep.getUf());
+                                //Por causa do observer a tela será atualizada sempre que o atributo do viewModel for alterado.
+                                cepViewModel.getCep().setValue(cep);
                             }
                         }
 

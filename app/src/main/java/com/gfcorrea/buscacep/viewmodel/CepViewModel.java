@@ -3,8 +3,11 @@ package com.gfcorrea.buscacep.viewmodel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.gfcorrea.buscacep.model.CepReturnModel;
+
 public class CepViewModel extends ViewModel {
 
+    private MutableLiveData<CepReturnModel> cep;
     private MutableLiveData<String> localidade;
     private MutableLiveData<String> uf;
     private MutableLiveData<String> logradouro;
@@ -37,5 +40,10 @@ public class CepViewModel extends ViewModel {
     public MutableLiveData<String> getNibge() {
         if(nibge == null){ nibge = new MutableLiveData<String>(); }
         return nibge;
+    }
+
+    public MutableLiveData<CepReturnModel> getCep() {
+        if(cep == null){ cep = new MutableLiveData<CepReturnModel>(); }
+        return cep;
     }
 }
